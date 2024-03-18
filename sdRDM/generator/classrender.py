@@ -196,7 +196,9 @@ def _get_field_type(attribute: Dict) -> str:
 
 
 def _extract_xml_alias(attribute: Dict) -> Optional[str]:
-    if "xml" not in attribute:
+    if "MathML" in attribute["type"]:
+        return "math"
+    elif "xml" not in attribute:
         return attribute["name"]
 
     return attribute["xml"].split("@")[-1]

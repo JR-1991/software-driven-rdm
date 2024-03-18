@@ -65,32 +65,40 @@ class DataTypes(Enum):
     nonnegativeint = ("NonNegativeInt", ["from pydantic import NonNegativeInt"])
     StrictInt = ("StrictInt", ["from pydantic import StrictInt"])
     strictint = ("StrictInt", ["from pydantic import StrictInt"])
+
     ConstrainedFloat = (
         "ConstrainedFloat",
         ["from pydantic import ConstrainedFloat"],
     )
+
     constrainedfloat = (
         "ConstrainedFloat",
         ["from pydantic import ConstrainedFloat"],
     )
+
     NegativeFloat = ("NegativeFloat", ["from pydantic import NegativeFloat"])
     negativefloat = ("NegativeFloat", ["from pydantic import NegativeFloat"])
+
     NonPositiveFloat = (
         "NonPositiveFloat",
         ["from pydantic import NonPositiveFloat"],
     )
+
     nonpositivefloat = (
         "NonPositiveFloat",
         ["from pydantic import NonPositiveFloat"],
     )
+
     NonNegativeFloat = (
         "NonNegativeFloat",
         ["from pydantic import NonNegativeFloat"],
     )
+
     nonnegativefloat = (
         "NonNegativeFloat",
         ["from pydantic import NonNegativeFloat"],
     )
+
     StrictFloat = ("StrictFloat", ["from pydantic import StrictFloat"])
     strictfloat = ("StrictFloat", ["from pydantic import StrictFloat"])
     StrictBytes = ("StrictBytes", ["from pydantic import StrictBytes"])
@@ -115,6 +123,7 @@ class DataTypes(Enum):
     pastdate = ("PastDate", ["from pydantic import PastDate"])
     FutureDate = ("FutureDate", ["from pydantic import FutureDate"])
     futuredate = ("FutureDate", ["from pydantic import FutureDate"])
+
     NDArray = (
         "Union[NDArray, H5Dataset]",
         [
@@ -123,6 +132,7 @@ class DataTypes(Enum):
             "from typing import Union",
         ],
     )
+
     ndarray = (
         "Union[NDArray, H5Dataset]",
         [
@@ -131,6 +141,7 @@ class DataTypes(Enum):
             "from typing import Union",
         ],
     )
+
     ndArray = (
         "Union[NDArray, H5Dataset]",
         [
@@ -139,8 +150,11 @@ class DataTypes(Enum):
             "from typing import Union",
         ],
     )
+
     H5Dataset = ("H5Dataset", ["from h5py._hl.dataset import Dataset as H5Dataset"])
     h5dataset = ("H5Dataset", ["from h5py._hl.dataset import Dataset as H5Dataset"])
+    MathML = ("MathML", ["from sdRDM.base.datatypes import MathML"])
+    Equation = ("Equation", ["from sdRDM.base.datatypes import Equation"])
     RawXML = ("_Element", ["from lxml.etree import _Element"])
 
     @classmethod

@@ -70,6 +70,8 @@ class DataModel(pydantic_xml.BaseXmlModel):
 
     def __init__(self, **data):
         self._convert_units(self, data)
+        self._convert_mathml(self, data)
+        self._convert_equation(self, data)
 
         super().__init__(**data)
         self._initialize_references()
@@ -458,11 +460,11 @@ class DataModel(pydantic_xml.BaseXmlModel):
             sort_keys=False,
         )
 
-    def xml(self):
+    def xml(self, skip_empty: bool = False):
         return self.to_xml(
             pretty_print=True,
             encoding="UTF-8",
-            skip_empty=True,
+            skip_empty=skip_empty,
             xml_declaration=True,
         ).decode()  # type: ignore
 
@@ -841,8 +843,9 @@ class DataModel(pydantic_xml.BaseXmlModel):
     def _check_list_value(value: Any, field_type) -> Tuple[str, bool]:
         msg = f"List element of type '{type(value)}' cannot be added. Expected type '{field_type}'"
 
-        if not isinstance(value, field_type) and not issubclass(field_type, Enum):
-            return msg, False
+        # Todo: Fix 3.9 compatibility for generics
+        # if not isinstance(value, field_type) and not hasattr(value, "__members__"):
+        #     return msg, False
 
         return "", True
 
@@ -871,6 +874,7 @@ class DataModel(pydantic_xml.BaseXmlModel):
         return value
 
     # ! Pre-validators
+    # TODO Generalize pre validators
     def _convert_units(self, model, data):
         unit_fields = [
             name
@@ -911,6 +915,98 @@ class DataModel(pydantic_xml.BaseXmlModel):
                 converted.append(None)
             else:
                 converted.append(unit)
+
+        if is_list:
+            return converted
+        else:
+            return converted[0]
+
+    def _convert_mathml(self, model, data):
+        mathml_fields = [
+            name
+            for name, field in model.model_fields.items()
+            if self._is_mathml_type(field)
+        ]
+
+        for name in mathml_fields:
+            if name not in data:
+                continue
+
+            data[name] = self._convert_mathml_string_to_mathml_type(data[name])
+
+    @staticmethod
+    def _is_mathml_type(field):
+        from sdRDM.base.datatypes import MathML
+
+        if field.annotation == MathML:
+            return True
+
+        return any(dtype == MathML for dtype in get_args(field.annotation))
+
+    @staticmethod
+    def _convert_mathml_string_to_mathml_type(mathmls):
+        from sdRDM.base.datatypes import MathML
+
+        if not isinstance(mathmls, (list, ListPlus)):
+            is_list = False
+            mathmls = [mathmls]
+        else:
+            is_list = True
+
+        converted = []
+        for mathml in mathmls:
+            if isinstance(mathml, str) and mathml != "":
+                converted.append(MathML.from_equation(mathml))
+            elif isinstance(mathml, str) and mathml == "":
+                converted.append(None)
+            else:
+                converted.append(mathml)
+
+        if is_list:
+            return converted
+        else:
+            return converted[0]
+
+    def _convert_equation(self, model, data):
+        equation_fields = [
+            name
+            for name, field in model.model_fields.items()
+            if self._is_equation_type(field)
+        ]
+
+        for name in equation_fields:
+            if name not in data:
+                continue
+
+            data[name] = self._convert_equation_string_to_equation_type(data[name])
+
+    @staticmethod
+    def _is_equation_type(field):
+        from sdRDM.base.datatypes import Equation
+
+        if field.annotation == Equation:
+            return True
+
+        return any(dtype == Equation for dtype in get_args(field.annotation))
+
+    @staticmethod
+    def _convert_equation_string_to_equation_type(equations):
+        from sdRDM.base.datatypes import Equation
+
+        if not isinstance(equations, (list, ListPlus)):
+            is_list = False
+            equations = [equations]
+        else:
+            is_list = True
+
+        converted = []
+        for equation in equations:
+            if isinstance(equation, str) and equation != "":
+                converted.append(Equation(equation))
+            elif isinstance(equation, str) and equation == "":
+                converted.append(None)
+            else:
+                converted.append(equation)
 
         if is_list:
             return converted
